@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0 |
-| **Last Updated** | 2026-03-06 |
+| **Version** | 1.1.0 |
+| **Last Updated** | 2026-06-04 |
 | **Applicability** | Backend services, APIs, distributed systems, serverless functions |
 | **Dependencies** | None (standalone reference) |
 
@@ -319,6 +319,31 @@ level = "error" | group by service | count / total
 # New error types (appeared in last 24h but not before)
 level = "error" AND error.type NOT IN (known_errors)
 ```
+
+---
+
+## Audit Surfaces: Design the View-Model for Redaction
+
+When an internal (operator/admin) audit surface will later have a user-facing
+counterpart, define ONE shared view-model type for the audit data and design
+it for redaction from day one:
+
+- Mark every internal-only field (raw prompts, raw model responses, raw
+  failure payloads, internal error detail) as OPTIONAL in the type, with an
+  explicit "internal-only" comment. A redacted instance is then the SAME type
+  with those fields absent, so the user-facing view reuses the same renderers
+  with no structural change.
+- Encode the redaction rule in one function (strip exactly the internal-only
+  fields), not scattered per-surface logic. Never add a REQUIRED
+  internal-only field; it breaks the redacted instance.
+- If the API is cross-language (e.g. Python backend, TypeScript frontend),
+  mirror the type on both sides and document that they must stay in sync.
+
+Presentation rule for trust-relevant signals: distinguish "the safety net
+worked" from "the system failed". A guardrail rejecting bad output (e.g. a
+grounding filter dropping a fabricated citation) is an informational signal
+and should render neutrally; reserve error styling for genuine failures.
+Showing rejected items honestly, with the reason, IS the trust story.
 
 ---
 

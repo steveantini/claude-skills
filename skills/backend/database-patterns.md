@@ -2,8 +2,8 @@
 
 | Field          | Value                                                  |
 |----------------|--------------------------------------------------------|
-| Version        | 1.0                                                    |
-| Last Updated   | 2026-03-06                                             |
+| Version        | 1.1                                                    |
+| Last Updated   | 2026-06-04                                             |
 | Applicability  | PostgreSQL 15+, applicable to most relational databases |
 | Dependencies   | PostgreSQL; optionally Alembic, Prisma, or Supabase CLI for migrations |
 
@@ -430,6 +430,26 @@ await conn.execute("SET LOCAL app.current_user_id = $1", str(user_id))
 - Use soft deletes for simple "undo" functionality.
 - Partition or archive the audit_log table if it grows large (by `changed_at`).
 - Never let the audit mechanism block or slow down the primary write path in a way that degrades UX.
+
+---
+
+## List Endpoints with Per-Row Rollups: Batch, Never N+1
+
+A list endpoint that shows summary counts from related tables (e.g. "recent
+parent records, each with counts from three child tables") must not issue one
+query per row. Two acceptable shapes:
+
+1. **SQL-side aggregation:** a view or JOIN with GROUP BY that returns the
+   rollups directly. Best when the aggregation is reused or windowed.
+2. **Batched IN-queries:** fetch the page of parent rows first, collect the
+   page's ids, then issue ONE query per related table using `WHERE parent_id
+   IN (page_ids)`, and aggregate in application code over the bounded page.
+   Query count is fixed (1 + number of related tables) regardless of page
+   size. Best when no migration is wanted and the page is small (<=100 rows).
+
+Either way, ensure every related table is indexed on the foreign key being
+filtered. The anti-pattern to watch for: a loop over list results that calls
+a per-id repository method (it often hides inside "get detail for each row").
 
 ---
 

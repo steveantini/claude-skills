@@ -1,8 +1,8 @@
 # Provider-Agnostic AI Model Abstraction
 
 ```
-Version:        1.0.0
-Last Updated:   2026-03-06
+Version:        1.1.0
+Last Updated:   2026-06-04
 Applicability:  Projects integrating multiple LLM providers (Claude, GPT, Gemini) or needing provider portability
 Dependencies:   anthropic SDK, openai SDK, google-generativeai SDK (install only providers you use)
 ```
@@ -559,6 +559,46 @@ def select_model(task_complexity: str, max_cost_per_request: float) -> str:
 
     return candidates[-1]  # Fallback to cheapest in tier
 ```
+
+---
+
+## DB-Backed Model Registry (with Code Fallback)
+
+A hardcoded `COST_TABLE` / model list means every model add, retirement, price
+change, or default switch is a code edit plus a redeploy. Once that cadence
+hurts (or you need per-tenant model access / margin pricing later), move the
+list into a database registry that both the runtime and the UI read from, while
+keeping the hardcoded table as a SAFE FALLBACK so a registry problem can never
+break inference or cost tracking.
+
+Shape:
+
+1. A `models` table: model_string (unique), label, input_cost / output_cost (in
+   whatever unit your cost math already uses, so the math is unchanged),
+   enabled, is_default, sort_order, plus retirement metadata. Enforce a single
+   default with a partial unique index (`UNIQUE (is_default) WHERE is_default`);
+   the set-default write clears the prior default first so the switch never
+   trips the index. Seed the table FROM the current hardcoded values, verbatim
+   and idempotently, so the migration changes nothing.
+2. Keep `compute_cost` SYNCHRONOUS and fast (it runs on every call). Do NOT
+   read the DB per call. Load the registry into an in-memory overlay at startup
+   and refresh it after each registry edit; `compute_cost` consults the overlay
+   first, then the hardcoded table, then 0.0 as the last resort. Resolve the
+   default the same way (overlay default, then the constant).
+3. Two read paths with different privilege: operator/admin endpoints expose the
+   full rows (including costs) for management; the public model PICKER reads a
+   cost-stripped endpoint (model_string + label + is_default for enabled models
+   only). Keep costs out of any client that does not need them, and prefer
+   serving the public list through an endpoint over a second cost-stripped RLS
+   policy.
+4. Every read falls back to the constants: the UI picker falls back to the
+   hardcoded list if the fetch fails (never leave the user unable to pick), and
+   the runtime falls back to the constant cost table. Editing the constants now
+   only changes the fallback.
+
+A registry lets an operator APPLY a known model with no code edit; it cannot
+auto-detect a provider's new releases (there is no reliable signal), so the
+operator enters a new model when they learn of it. Say so in the UI.
 
 ---
 

@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0 |
-| **Last Updated** | 2026-03-06 |
+| **Version** | 1.1.0 |
+| **Last Updated** | 2026-06-04 |
 | **Applicability** | AI-powered features, LLM integrations, generative AI products |
 | **Dependencies** | analytics.md (for metric tracking), cost-tracking.md (for eval cost budgeting) |
 
@@ -396,6 +396,37 @@ eval-nightly:
 5. Human eval correlation (scatter plot: automated score vs. human score)
 6. Bias metrics by category (line chart, should be flat/improving)
 ```
+
+---
+
+## Editable Eval Datasets (DB-Backed with Code Fallback)
+
+Hardcoded eval suites become a bottleneck once a non-engineer (or the
+operator) needs to curate cases. The evolution pattern:
+
+1. Move cases into database tables (dataset + cases, with a type-shaped
+   JSON content column validated against the same schema models the code
+   uses). Seed the tables FROM the existing hardcoded constants, verbatim
+   and idempotently, so the migration changes nothing behaviorally.
+2. Make the eval runner load enabled cases from the DB at run start, parsing
+   each into the existing typed models and SKIPPING malformed rows with a
+   warning (one bad case must not kill the suite).
+3. Keep the hardcoded constants as a SAFE FALLBACK: if the tables are absent
+   (migration not yet run), unreadable, or empty, run the built-in suite.
+   Evals must never break because dataset management broke.
+4. Validate case content against the type's schema at the WRITE path (the
+   API rejects a malformed case with a 422), not just at read time.
+
+Two adjacent capabilities worth adding in the same step:
+
+- **Ad-hoc run-and-inspect:** an endpoint to run a single arbitrary input
+  through the full pipeline as a clearly-marked ad-hoc run stored in the
+  same run/result tables. Fixed batches answer "did we regress"; ad-hoc
+  runs answer "what does it do with THIS input right now".
+- **Human score override:** additive columns (human_score, human_note,
+  scored_by, scored_at) on results. The machine score is never replaced;
+  the human judgment is recorded alongside it. This doubles as calibration
+  data for the LLM-as-judge.
 
 ---
 
