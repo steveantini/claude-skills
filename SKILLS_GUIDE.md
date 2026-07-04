@@ -59,7 +59,7 @@ skills are added or removed).
 
 ### Invocable skills (`invocable/`, symlinked global)
 
-- **codebase-review** — a structured four-pass read-only audit (backend,
+- **codebase-review** - a structured four-pass read-only audit (backend,
   frontend, architecture, tests and docs) that finds real bugs, security holes,
   architecture drift, and test/doc gaps, then fixes worst-first. Run it by
   asking for a codebase review, audit, or pre-launch health check.
@@ -67,44 +67,44 @@ skills are added or removed).
 ### Reference docs (26, across 7 categories)
 
 AI Integration (4)
-- **anthropic-api.md** — Claude API: model choice, tool use, streaming, prompt caching, token and cost math.
-- **mcp-development.md** — Building MCP servers (FastMCP and the TypeScript SDK): tools, resources, testing, deployment.
-- **model-abstraction.md** — Provider-agnostic LLM layer: unified interface, a DB-backed model registry with code fallback, cost normalization.
-- **prompt-engineering.md** — Prompt patterns: system-prompt architecture, structured output, injection defense, evaluation.
+- **anthropic-api.md** - Claude API: model choice, tool use, streaming, prompt caching, token and cost math.
+- **mcp-development.md** - Building MCP servers (FastMCP and the TypeScript SDK): tools, resources, testing, deployment.
+- **model-abstraction.md** - Provider-agnostic LLM layer: unified interface, a DB-backed model registry with code fallback, cost normalization.
+- **prompt-engineering.md** - Prompt patterns: system-prompt architecture, structured output, injection defense, evaluation.
 
 Backend (3)
-- **database-patterns.md** — Postgres schema and query reference: indexing, migrations, JSONB, batched rollups (avoiding N+1), audit trails.
-- **python-api.md** — FastAPI reference: project structure, settings, dependency injection, async, error handling, testing.
-- **supabase.md** — Supabase patterns: RLS, auth across client/SSR/JWT, realtime, edge functions, storage, CLI workflows, gotchas.
+- **database-patterns.md** - Postgres schema and query reference: indexing, migrations, JSONB, batched rollups (avoiding N+1), audit trails.
+- **python-api.md** - FastAPI reference: project structure, settings, dependency injection, async, error handling, testing.
+- **supabase.md** - Supabase patterns: RLS, auth across client/SSR/JWT, realtime, edge functions, storage, CLI workflows, gotchas.
 
 Design (3)
-- **responsive-design.md** — Responsive layout: breakpoints, fluid type, mobile-first, container queries.
-- **ui-patterns.md** — Reusable UI component and interaction patterns.
-- **ux-writing.md** — Microcopy: error states, empty states, honest product voice.
+- **responsive-design.md** - Responsive layout: breakpoints, fluid type, mobile-first, container queries.
+- **ui-patterns.md** - Reusable UI component and interaction patterns.
+- **ux-writing.md** - Microcopy: error states, empty states, honest product voice.
 
 DevOps (3)
-- **ci-cd.md** — CI/CD pipelines: PR checks, deploy gates, GitHub Actions.
-- **environment-management.md** — Env vars and secrets across dev/preview/prod, with fail-closed defaults.
-- **vercel-deployment.md** — Vercel build config, preview deploys, env vars, domains.
+- **ci-cd.md** - CI/CD pipelines: PR checks, deploy gates, GitHub Actions.
+- **environment-management.md** - Env vars and secrets across dev/preview/prod, with fail-closed defaults.
+- **vercel-deployment.md** - Vercel build config, preview deploys, env vars, domains.
 
 Frontend (4)
-- **nextjs.md** — Next.js App Router: server and client components, server actions, routing, rendering strategies.
-- **react-patterns.md** — React component architecture: hooks, effect cleanup, state, composition.
-- **tailwind.md** — Tailwind conventions: design tokens, utility patterns, theming.
-- **web-accessibility.md** — WCAG 2.1 AA: forms, keyboard navigation, modals, semantic structure.
+- **nextjs.md** - Next.js App Router: server and client components, server actions, routing, rendering strategies.
+- **react-patterns.md** - React component architecture: hooks, effect cleanup, state, composition.
+- **tailwind.md** - Tailwind conventions: design tokens, utility patterns, theming.
+- **web-accessibility.md** - WCAG 2.1 AA: forms, keyboard navigation, modals, semantic structure.
 
 Product Ops (4)
-- **analytics.md** — Privacy-preserving analytics: event design, no-PII capture, dashboards.
-- **cost-tracking.md** — AI and infrastructure cost management: per-call token logging, budgets, ROI framing.
-- **eval-framework.md** — AI quality evals: golden datasets, LLM-as-judge, regression gates, DB-backed editable cases.
-- **observability.md** — Logging, tracing, monitoring, and audit surfaces designed for redaction from day one.
+- **analytics.md** - Privacy-preserving analytics: event design, no-PII capture, dashboards.
+- **cost-tracking.md** - AI and infrastructure cost management: per-call token logging, budgets, ROI framing.
+- **eval-framework.md** - AI quality evals: golden datasets, LLM-as-judge, regression gates, DB-backed editable cases.
+- **observability.md** - Logging, tracing, monitoring, and audit surfaces designed for redaction from day one.
 
 Security (5)
-- **api-security.md** — Endpoint security: authorization per route, input validation, rate limits, CORS.
-- **backend-security.md** — Server-side security: secret handling, service-role usage, no-PII logging.
-- **database-security.md** — RLS design and testing, least-privilege roles, migration safety.
-- **frontend-security.md** — CSP, XSS prevention, cookie handling, client-storage hygiene.
-- **infra-security.md** — Deploy and infrastructure hardening: security headers, container config, least privilege.
+- **api-security.md** - Endpoint security: authorization per route, input validation, rate limits, CORS.
+- **backend-security.md** - Server-side security: secret handling, service-role usage, no-PII logging.
+- **database-security.md** - RLS design and testing, least-privilege roles, migration safety.
+- **frontend-security.md** - CSP, XSS prevention, cookie handling, client-storage hygiene.
+- **infra-security.md** - Deploy and infrastructure hardening: security headers, container config, least privilege.
 
 ### In the library but not yet used in a project (8)
 
