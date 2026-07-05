@@ -59,10 +59,14 @@ skills are added or removed).
 
 ### Invocable skills (`invocable/`, symlinked global)
 
-- **codebase-review** - a structured four-pass read-only audit (backend,
-  frontend, architecture, tests and docs) that finds real bugs, security holes,
-  architecture drift, and test/doc gaps, then fixes worst-first. Run it by
-  asking for a codebase review, audit, or pre-launch health check.
+- **codebase-review** - a structured five-pass read-only audit (backend
+  correctness/security, frontend correctness, architecture/config, tests and
+  docs, and public content accuracy; Pass 5 added 2026-07-05) that finds real
+  bugs, security holes, architecture drift, test/doc gaps, and inaccurate public
+  copy, then fixes worst-first. It also self-improves: at a review's end it
+  proposes process-level edits to its own skill file, but never changes without
+  explicit confirmation. Run it by asking for a codebase review, audit, content
+  audit, or pre-launch health check.
 
 ### Reference docs (26, across 7 categories)
 

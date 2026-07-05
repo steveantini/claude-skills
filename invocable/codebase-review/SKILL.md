@@ -1,18 +1,19 @@
 ---
 name: codebase-review
-description: A structured four-pass read-only audit for finding real bugs, security holes, architecture drift, and test/doc gaps in a web app (frontend + backend + database). Use whenever the user asks for a codebase review, code audit, bug hunt, architecture review, security review, dependency/config review, test-quality review, or a pre-launch / pre-scaling / pre-investor health check, and also when they ask you to "look the project over," "find what's broken before we ship," or "make sure this is safe to open up to more users," even if they don't say the word "audit."
+description: A structured five-pass read-only audit for finding real bugs, security holes, architecture drift, test/doc gaps, and public-content inaccuracy in a web app (frontend + backend + database). Use whenever the user asks for a codebase review, code audit, bug hunt, architecture review, security review, dependency/config review, test-quality review, content/marketing-copy audit, or a pre-launch / pre-scaling / pre-investor health check, and also when they ask you to "look the project over," "find what's broken before we ship," or "make sure this is safe to open up to more users," even if they don't say the word "audit."
 ---
 
-# Codebase review: the four-pass audit
+# Codebase review: the five-pass audit
 
 A disciplined way to review a whole codebase for a web app (frontend, backend,
 database). It is read-only first, ranked, and swept by CLASS. It was distilled
 from a real audit cycle that found production bugs which passing tests and
 confident docs had hidden.
 
-The shape: four read-only passes (backend, frontend, architecture, tests+docs),
-each producing a ranked findings report. Then fix worst-first, one change-set at
-a time, and encode each fixed invariant so the whole class stays dead.
+The shape: five read-only passes (backend, frontend, architecture, tests+docs,
+public content), each producing a ranked findings report. Then fix worst-first,
+one change-set at a time, and encode each fixed invariant so the whole class
+stays dead.
 
 ## Principles (read before starting any pass)
 
@@ -42,10 +43,10 @@ a time, and encode each fixed invariant so the whole class stays dead.
   code says otherwise; the prompt asserts "X is handled," the code disagrees.
   Open the file and confirm before you rank.
 - **Fix a pass's P1s before running the next pass.** A live P1 changes what
-  later passes should worry about, and stacking unfixed criticals across four
+  later passes should worry about, and stacking unfixed criticals across five
   passes loses them.
 
-## The four passes
+## The five passes
 
 Run them in order. Each is a read-only sweep ending in a ranked report. The
 checklists below are the items that actually caught bugs, not an exhaustive
@@ -155,6 +156,31 @@ theory of everything.
   the write path needs) means a new environment built from the doc is broken on
   arrival.
 
+### Pass 5 — Public content accuracy
+
+Every public-facing page (marketing, docs, trust, legal) audited against the
+current product.
+
+- **Factual claims verified against code.** Model names/defaults, feature counts,
+  limits, encryption/retention claims: open the code and confirm each checkable
+  claim, do not trust the copy.
+- **Stale references.** Features that were removed, renamed, or shipped but still
+  described as "coming soon" (and the reverse: a shipped capability the page still
+  promises as future).
+- **Internal links resolve.** Every in-app link points at a live route; redirect
+  stubs count as live.
+- **Cross-page consistency.** The same fact told the same way everywhere. Watch
+  for term collisions between similarly-named concepts (two different "twelve X"
+  taxonomies, a "lens" that means two things), which read as one fact but are not.
+- **Placeholder honesty.** A page that admits a stub ("coming soon," a beta note)
+  is fine; a page that states wrong specifics or a date that has passed is not.
+- **Do NOT assess** legal sufficiency or voice/tone; the founder owns the voice
+  layer on the highest-stakes persuasive pages.
+- **Where drift lives:** pages that render from a canonical data source are
+  consistent by construction, so spend the time on HAND-COPIED content. Converting
+  a drifted copy to read from the canonical source is the permanent fix, not a
+  one-time correction of the copy.
+
 ## Output conventions
 
 - **Each pass** produces a ranked findings report: P0s first and flagged, then
@@ -164,18 +190,23 @@ theory of everything.
 - **Pass 4 additionally** produces two lists: a **top-5 untested critical
   behaviors** list (ranked by blast radius), and a **continuity-gap list** (the
   doc contradictions / runbook holes a fresh session could trip over).
+- **Pass 5 additionally** produces a **per-page verdict table** (each page rated
+  clean / minor / needs work) alongside its ranked findings.
 - **When fixing** (after the audit): worst-first, ONE change-set at a time, run
   the test suite between change-sets, and for each fixed class add or update the
   invariant note in the house-rules doc so it stays dead.
 
 ## Cadence
 
-- **Full four-pass review** after each major arc ships, or quarterly, whichever
+- **Full five-pass review** after each major arc ships, or quarterly, whichever
   comes first.
 - **Always before expanding access** (opening a beta wider, going public,
   onboarding the first outside users). New users are new attack surface and new
-  blast radius; run all four passes first, weighting pass 1 (security) and the
+  blast radius; run all five passes first, weighting pass 1 (security) and the
   cross-user-scoping and rate-limit items.
+- **The content pass (pass 5)** runs with the full review, and additionally after
+  any arc that changes user-facing behavior (so shipped/removed features never
+  leave the public copy describing a product that no longer exists).
 - **Lightweight weekly** production-log review between full audits: scan startup
   lines (did every subsystem wire up?), error tracebacks (new classes?), and
   request patterns (abuse, unexpected volume, slow endpoints). This is the cheap
