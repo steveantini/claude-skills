@@ -1,4 +1,4 @@
-# Claude Code Templates
+# Claude Code Skills
 
 A portable library of Claude Code skills and project configuration templates. Start new projects with battle-tested conventions and Claude Code skill files instead of building project context from scratch every time.
 
@@ -7,9 +7,9 @@ A portable library of Claude Code skills and project configuration templates. St
 **`invocable/` holds SKILL.md-format skills, symlinked into `~/.claude/skills/`.** These are the skills the Claude Code `Skill` tool discovers and runs (e.g. `codebase-review`). They are global to your account, not per-project, so linking them once makes them available in every repo on the machine. New machine (or after a disk loss): clone this repo, then symlink each invocable skill into your skills directory:
 
 ```
-git clone https://github.com/steveantini/claude-templates.git ~/Projects/claude-templates
+git clone https://github.com/steveantini/claude-skills.git ~/Projects/claude-skills
 mkdir -p ~/.claude/skills
-ln -s ~/Projects/claude-templates/invocable/codebase-review ~/.claude/skills/codebase-review
+ln -s ~/Projects/claude-skills/invocable/codebase-review ~/.claude/skills/codebase-review
 ```
 
 That is the whole recovery: the skill's real bytes live in this repo, and `~/.claude/skills/` just points at them.
@@ -134,7 +134,7 @@ These templates are living documents. At the end of every phase of every project
 ## Folder Structure
 
 ```
-claude-templates/
+claude-skills/
 ├── CLAUDE.template.md              # Project configuration template
 ├── skills/
 │   ├── ai-integration/             # LLM APIs, MCP servers, prompt engineering

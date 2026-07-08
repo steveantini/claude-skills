@@ -2,7 +2,7 @@
 
 This is the canonical guide to how skills work in this setup: what the two kinds
 are, what is in the library right now, how to wire them into a new project, and
-how they stay backed up. It lives in `claude-templates` and is the source of
+how they stay backed up. It lives in `claude-skills` and is the source of
 truth. Reread the Quick Reference whenever you start a project; read the rest
 when something feels unclear.
 
@@ -201,7 +201,7 @@ up" are not the same thing.
 
 | Change | Lands on disk | Backed up (GitHub) |
 |---|---|---|
-| Edit an invocable skill (SKILL.md) | Instantly, via the symlink | Only after you commit and push in claude-templates |
+| Edit an invocable skill (SKILL.md) | Instantly, via the symlink | Only after you commit and push in claude-skills |
 | Improve a reference doc inside a project | In the project's copy only | Only after you copy the portable part back here and push |
 | Anything | Local disk | Nothing reaches any cloud except by `git push` |
 
@@ -209,7 +209,7 @@ Two things to internalize:
 
 - **Automatic-on-disk is not automatic-on-GitHub.** Editing an invocable skill
   updates the repo folder immediately (the symlink points straight at it), but it
-  is not backed up until you commit and push in `claude-templates`. Check
+  is not backed up until you commit and push in `claude-skills`. Check
   `git status` in this repo occasionally. The cautionary example: four reference
   docs sat improved-but-uncommitted in this repo for weeks before this guide was
   written. On disk, invisible to git backup.
@@ -231,7 +231,7 @@ which kind it is:
   invoke by name) becomes an **invocable skill**. Create
   `invocable/<name>/SKILL.md`, write its instructions so it is self-contained
   (it must work with only "run <name>" as the prompt), then symlink it into your
-  skills directory: `ln -s ~/Projects/claude-templates/invocable/<name> ~/.claude/skills/<name>`.
+  skills directory: `ln -s ~/Projects/claude-skills/invocable/<name> ~/.claude/skills/<name>`.
   Commit and push. Add it to section 3.
 - **Knowledge to consult** (patterns, gotchas, conventions for a technology)
   becomes a **reference doc**. Add or extend the `.md` in the fitting category
@@ -248,8 +248,8 @@ reference doc. If you would want to trigger it deliberately, it is invocable.
 Everything is git-backed in this repo, so recovery is two commands.
 
 ```
-git clone https://github.com/steveantini/claude-templates.git ~/Projects/claude-templates
-ln -s ~/Projects/claude-templates/invocable/codebase-review ~/.claude/skills/codebase-review
+git clone https://github.com/steveantini/claude-skills.git ~/Projects/claude-skills
+ln -s ~/Projects/claude-skills/invocable/codebase-review ~/.claude/skills/codebase-review
 ```
 
 The first clones the whole library (reference docs and invocable skills) from
@@ -262,7 +262,7 @@ into projects as you start them (section 4).
 
 ## 9. Keeping this document current
 
-This markdown, in `claude-templates`, is the canonical version. Whenever skills
+This markdown, in `claude-skills`, is the canonical version. Whenever skills
 are added or removed, or a convention changes, ask Claude Code to update this
 file in the SAME commit as the change, so the guide never drifts from reality.
 
