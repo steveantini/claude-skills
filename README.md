@@ -18,7 +18,7 @@ That is the whole recovery: the skill's real bytes live in this repo, and `~/.cl
 
 **The sync convention: this repo is always canonical.** When work in a project improves a reference doc or an invocable skill, copy the generalized improvement back here and push, so this library stays the most-evolved copy. Keep project-*specific* additions in the project (a version pin, a local decision reference, a path into `node_modules`) — only portable, project-agnostic lessons sync back. If a project's copy and this one disagree, this repo is the source of truth for the general guidance; the project's copy is the source of truth for its own local overrides.
 
-**Total skills:** 25 across 7 categories (plus the invocable skills under `invocable/`)
+**Total skills:** 26 across 7 categories (plus the invocable skills under `invocable/`)
 
 ## Skill Summary
 
