@@ -16,6 +16,23 @@
 
 ---
 
+## Content Ownership Rules
+
+<!--
+  OPTIONAL but recommended when a non-engineer (founder, client, partner) authors
+  text the assistant will see: business docs, decks, brand copy, transcripts.
+  State plainly, before any technical convention:
+  - Which files or text are owner-authored and must never be reworded, polished,
+    or corrected (including typos and shorthand) unless the owner asks in that session.
+  - Which files the assistant drafted and may freely adjust.
+  - Which files live OUTSIDE the repo (with the relative path) and must never be
+    opened, moved, copied, or committed. Back this with .gitignore patterns.
+  - Where the plain-English explanation of anything technical must go.
+  Put this section first after the overview so it is read before any coding rule.
+-->
+
+---
+
 ## Architecture
 
 ### Tech Stack
