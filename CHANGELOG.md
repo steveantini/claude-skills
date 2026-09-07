@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- Decision-log bullet in CLAUDE.template.md now states the immutability rule: accepted decisions are never edited except for their Status line; changes get a superseding entry. Lesson from the jam-city-music-center content migration (2026-09-07).
+
 ### Added
 - Optional "Content Ownership Rules" section in CLAUDE.template.md: where to state which text is owner-authored and off limits, which files live outside the repo, and where plain-English explanations go. Lesson from the jam-city-music-center setup (2026-09-07).
 

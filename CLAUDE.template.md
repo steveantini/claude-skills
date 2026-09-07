@@ -156,7 +156,7 @@ When making any product change (new feature, renamed component, new page, archit
 - **README.md**: Project overview, setup instructions, feature list, routes, project structure
 - **Product vision doc**: Product vision, brand architecture, messaging (project-specific file name)
 - **Product outline**: Roadmap, technical architecture, phase status (project-specific file name)
-- **Decision log**: If the change involves a decision worth recording (project-specific file name)
+- **Decision log**: If the change involves a decision worth recording (project-specific file name). A recorded decision is never edited after acceptance except to change its Status line; a changed decision gets a new entry that supersedes the old one
 - **CLAUDE.md**: New conventions, components, architecture changes
 - **CHANGELOG.md**: What was built, what was fixed, date
 - **.env.example**: Any new environment variables
