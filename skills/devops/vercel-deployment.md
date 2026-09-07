@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0 |
-| **Last Updated** | 2026-03-06 |
+| **Version** | 1.1.0 |
+| **Last Updated** | 2026-09-07 |
 | **Applicability** | Next.js, SvelteKit, Nuxt, Astro, Remix, static sites deployed to Vercel |
 | **Dependencies** | Vercel CLI (`vercel`), GitHub integration, Node.js 18+ |
 
@@ -307,9 +307,10 @@ turbo.json
 
 ### Deployment Protection
 
-- **Vercel Authentication**: Require Vercel login for preview deployments.
-- **Password protection**: Available on Pro plan.
+- **Vercel Authentication**: Require Vercel login. Included on Pro for preview and deployment URLs only ("Standard Protection"); covering production domains needs the Advanced Deployment Protection add-on.
+- **Password protection**: NOT included on Pro. Requires the paid Advanced Deployment Protection add-on (the API answers `invalid_password_protection: Advanced Deployment Protection is not enabled on your team`). Enterprise includes it.
 - **Trusted IPs**: Restrict by IP range on Enterprise.
+- **Gotcha**: a new project's default `<project>.vercel.app` production domain is public under Standard Protection. If content must stay private and the add-on is not wanted, gate it in the app (middleware/proxy with a signed cookie) before the first production deploy.
 
 ---
 

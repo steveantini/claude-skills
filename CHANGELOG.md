@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- vercel-deployment.md 1.1.0: Vercel Password Protection is not included on Pro (needs the Advanced Deployment Protection add-on), Vercel Authentication covers previews only, and the default `.vercel.app` production domain is public. Gate in-app if the add-on is not wanted.
+- CLAUDE.template.md: verify the working directory matches the project before the first command of every session.
+
 ### Added
 - "Engineering Standard" section in CLAUDE.template.md: the bar every change is held to (foundation never simple, no shortcuts to undo later, right way over cheap way, documented). From the jam-city-music-center site build (2026-09-07).
 

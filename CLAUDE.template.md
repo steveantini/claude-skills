@@ -172,6 +172,8 @@ When making any product change (new feature, renamed component, new page, archit
 
 This is not optional. Documentation updates are part of the definition of done for every change.
 
+Verify the working directory matches the project before the first command of every session; the shell may rest elsewhere.
+
 At the end of every phase or significant feature completion, sync generalized lessons back to your portable template library (wherever you maintain it locally, such as your own fork of these templates). Extract the universal principle, not the project-specific detail. If a new rule or convention is added to this project's CLAUDE.md, evaluate whether it belongs in your template CLAUDE.md as well.
 
 ---
