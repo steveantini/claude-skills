@@ -32,6 +32,15 @@
 -->
 
 ---
+## Engineering Standard
+
+<!--
+  RECOMMENDED. Keep as-is or tighten; do not soften. This is the bar every change is held to.
+-->
+
+Everything built in this repo is built to the most professional, cutting-edge, architecturally sound, and scalable standard, and is delightful for both the user and the maintainer. The visible design may start simple; the foundation never does. Every choice should be one we would still be proud of when this project is the public face of the business. No shortcuts that would need to be undone later. When there is a cheap way and a right way, take the right way and document why.
+
+---
 
 ## Architecture
 

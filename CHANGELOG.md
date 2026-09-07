@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- "Engineering Standard" section in CLAUDE.template.md: the bar every change is held to (foundation never simple, no shortcuts to undo later, right way over cheap way, documented). From the jam-city-music-center site build (2026-09-07).
+
 ### Changed
 - Decision-log bullet in CLAUDE.template.md now states the immutability rule: accepted decisions are never edited except for their Status line; changes get a superseding entry. Lesson from the jam-city-music-center content migration (2026-09-07).
 
