@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Last Updated** | 2026-09-07 |
 | **Applicability** | Next.js, SvelteKit, Nuxt, Astro, Remix, static sites deployed to Vercel |
 | **Dependencies** | Vercel CLI (`vercel`), GitHub integration, Node.js 18+ |
@@ -128,6 +128,41 @@ Every push to a non-production branch creates a preview deployment.
 - CNAME changes: typically minutes.
 - Nameserver delegation: up to 48 hours.
 - Verify: `dig +short CNAME your-domain.com` or check Vercel dashboard.
+
+### Redirecting www from the command line
+
+`vercel domains add` has no redirect option. The redirect is a property of the project-domain
+record, set through the API (the dashboard does the same call):
+
+```
+PATCH https://api.vercel.com/v9/projects/<project>/domains/www.example.com?teamId=<team>
+{"redirect": "example.com", "redirectStatusCode": 308}
+```
+
+Add both hostnames to the project first, then patch the one that should redirect. Verify with
+`curl -sI https://www.example.com/path?x=1` (expect 308 with the path and query preserved).
+
+---
+
+## Setting Up a Project from the CLI (gotchas)
+
+Creating a project with `vercel project add` instead of importing it in the dashboard skips
+framework detection and a few defaults. Learned the hard way; check all four before the first push.
+
+- **Framework preset is "Other".** The build command falls back to `npm run build` and the output
+  directory to `public`, which does not deploy a Next.js app correctly. Set it explicitly before
+  `vercel git connect` or the first push: `vercel project update <name> --framework nextjs --yes`.
+- **`vercel link` appends `.env*` to `.gitignore`.** If `.gitignore` already has `.env.*` followed by
+  `!.env.example`, the appended line comes last and re-ignores `.env.example`, so the next
+  `git add` of it fails silently. Diff `.gitignore` after linking and drop the added line.
+- **`vercel git connect` deploys immediately** from the current default branch, and Dependabot (if
+  configured) opens PRs and preview deployments within a minute of the config landing. Set the
+  environment variables the app needs (`vercel env add NAME production,preview --sensitive`,
+  value on stdin) and confirm any access gate is in the code before connecting, so the first
+  deployment is never ungated.
+- **`vercel env add` reads the value from stdin.** `printf '%s' "$VALUE" | vercel env add NAME
+  production,preview --sensitive` avoids a trailing newline in the secret and keeps it out of the
+  shell history.
 
 ---
 
