@@ -18,7 +18,7 @@ That is the whole recovery: the skill's real bytes live in this repo, and `~/.cl
 
 **The sync convention: this repo is always canonical.** When work in a project improves a reference doc or an invocable skill, copy the generalized improvement back here and push, so this library stays the most-evolved copy. Keep project-*specific* additions in the project (a version pin, a local decision reference, a path into `node_modules`) — only portable, project-agnostic lessons sync back. If a project's copy and this one disagree, this repo is the source of truth for the general guidance; the project's copy is the source of truth for its own local overrides.
 
-**Total skills:** 26 across 7 categories (plus the invocable skills under `invocable/`)
+**Total skills:** 27 across 8 categories (plus the invocable skills under `invocable/`)
 
 ## Skill Summary
 
@@ -26,12 +26,13 @@ That is the whole recovery: the skill's real bytes live in this repo, and `~/.cl
 |---|---|---|
 | AI Integration | 4 | LLM APIs, MCP servers, prompt engineering, provider abstraction |
 | Backend | 3 | APIs, databases, Supabase patterns |
+| Content | 1 | Document conversion with pandoc |
 | Design | 3 | UI/UX patterns, responsive design, microcopy |
 | DevOps | 3 | CI/CD, deployment, environment management |
 | Frontend | 4 | React, Next.js, Tailwind CSS, accessibility |
 | Product Ops | 4 | Analytics, cost tracking, evals, observability |
 | Security | 5 | API, backend, database, frontend, and infrastructure security |
-| **Total** | **25** | |
+| **Total** | **27** | |
 
 ---
 
@@ -54,6 +55,10 @@ That is the whole recovery: the skill's real bytes live in this repo, and `~/.cl
 **`python-api.md`** — FastAPI reference including project structure, application factory pattern, pydantic-settings configuration, request/response models, dependency injection, async patterns, structured error handling, CORS setup, health checks, API versioning, and testing with pytest.
 
 **`supabase.md`** — Supabase-specific patterns for row-level security policies, auth integration across client-side, SSR, and JWT contexts, real-time subscriptions, edge functions, storage buckets, migration workflows, local development with the Supabase CLI, TypeScript type generation, and common gotchas.
+
+### Content
+
+**`document-conversion.md`** — pandoc `.docx` conversion lessons: headings are silently dropped when the document defines no "Normal" paragraph style (fix a scratch copy's `word/styles.xml`, never the original), and `--extract-media=.` must run from inside the target folder to avoid a nested `media/media/` path.
 
 ### Design
 
@@ -146,6 +151,8 @@ claude-skills/
 │   │   ├── database-patterns.md
 │   │   ├── python-api.md
 │   │   └── supabase.md
+│   ├── content/                    # Document conversion (pandoc)
+│   │   └── document-conversion.md
 │   ├── design/                     # UI/UX, responsive design, writing
 │   │   ├── responsive-design.md
 │   │   ├── ui-patterns.md

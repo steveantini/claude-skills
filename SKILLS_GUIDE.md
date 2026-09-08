@@ -68,7 +68,7 @@ skills are added or removed).
   explicit confirmation. Run it by asking for a codebase review, audit, content
   audit, or pre-launch health check.
 
-### Reference docs (26, across 7 categories)
+### Reference docs (27, across 8 categories)
 
 AI Integration (4)
 - **anthropic-api.md** - Claude API: model choice, tool use, streaming, prompt caching, token and cost math.
@@ -80,6 +80,9 @@ Backend (3)
 - **database-patterns.md** - Postgres schema and query reference: indexing, migrations, JSONB, batched rollups (avoiding N+1), audit trails.
 - **python-api.md** - FastAPI reference: project structure, settings, dependency injection, async, error handling, testing.
 - **supabase.md** - Supabase patterns: RLS, auth across client/SSR/JWT, realtime, edge functions, storage, CLI workflows, gotchas.
+
+Content (1)
+- **document-conversion.md** - pandoc `.docx` conversion: the missing-Normal-style heading loss and its scratch-copy fix, running `--extract-media=.` from the target folder.
 
 Design (3)
 - **responsive-design.md** - Responsive layout: breakpoints, fluid type, mobile-first, container queries.
