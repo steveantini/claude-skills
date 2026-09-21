@@ -2,8 +2,8 @@
 
 | Field          | Value                                                  |
 |----------------|--------------------------------------------------------|
-| Version        | 1.1                                                    |
-| Last Updated   | 2026-06-04                                             |
+| Version        | 1.2                                                    |
+| Last Updated   | 2026-09-21                                             |
 | Applicability  | PostgreSQL 15+, applicable to most relational databases |
 | Dependencies   | PostgreSQL; optionally Alembic, Prisma, or Supabase CLI for migrations |
 
@@ -433,6 +433,54 @@ await conn.execute("SET LOCAL app.current_user_id = $1", str(user_id))
 
 ---
 
+## Retiring Rows: Soft Delete Leaks, Hard Delete Needs a Guard
+
+Soft delete (`deleted_at`) is not a property of the table. It is a filter that
+every read must remember to apply, and the reads that forget are the ones nobody
+is looking at.
+
+**Where the filter goes missing.** The main list and the detail page get it,
+because someone tests those. The leaks are the secondary reads: a picker in some
+other feature, an admin lookup by id, an analytics rollup, a seed or import
+script that resolves a parent row by slug. An import that resolves a retired
+parent will happily attach live children to it, and then report success for rows
+no screen shows.
+
+Rules that hold up:
+
+- **Audit every read of the table when you first soft-delete a row in it**, not
+  only the ones near the feature you are changing. Grep for the table name; a
+  read without the filter is a bug until proven deliberate.
+- **One marker, not two.** A table carrying both `is_active` and `deleted_at`
+  will have some reads filtering one and some the other. Pick one, make the
+  other dormant, and say which in a comment on the table.
+- **A unique key still counts the retired row.** `unique (tenant_id, slug)`
+  keeps a soft-deleted slug occupied. If slugs should be reusable, make the
+  index partial (`where deleted_at is null`), and decide that before you need it.
+- **Prefer a helper or a view over a convention.** `live_widgets` (a view) or a
+  single `liveWidgets()` query helper turns "remember the filter" into "use the
+  right name".
+
+**When hard delete is the right call.** Soft delete exists to protect history:
+rows that billing, audit, or conversation records point at. A row with nothing
+attached has no history to protect, and soft-deleting it buys only the leaks
+above. Hard delete it, in a migration, behind a guard:
+
+```sql
+-- refuse, naming the row, rather than half-apply
+if exists (select 1 from child c where c.parent_id = v_parent_id) then
+  raise exception 'parent % still has children attached; nothing was changed', v_slug;
+end if;
+delete from parent where id = v_parent_id;
+```
+
+Let `on delete restrict` on the history-bearing foreign keys be the second line
+of defense, and let `on delete cascade` carry away only rows that are meaningless
+without the parent (membership and link rows). Check array columns that hold ids
+with no foreign key: nothing else will catch a dangling id there.
+
+---
+
 ## List Endpoints with Per-Row Rollups: Batch, Never N+1
 
 A list endpoint that shows summary counts from related tables (e.g. "recent
@@ -464,4 +512,6 @@ a per-id repository method (it often hides inside "get detail for each row").
 - [ ] JSONB for semi-structured data, not as a schema escape hatch
 - [ ] Generated tsvector column + GIN index for full-text search
 - [ ] Audit trail via triggers or soft deletes depending on requirements
+- [ ] Soft delete: every read of the table filters it; one marker only; unique keys decided
+- [ ] Rows with no history are hard deleted behind a guard that raises, not soft deleted
 - [ ] Migrations are append-only, one change per file, reversible

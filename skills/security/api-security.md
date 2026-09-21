@@ -1,7 +1,7 @@
 # API Security Reference
 
-> **Version:** 1.0.0
-> **Last Updated:** 2026-03-06
+> **Version:** 1.1.0
+> **Last Updated:** 2026-09-21
 > **Applicability:** REST APIs, GraphQL APIs, webhook receivers
 > **Dependencies:** JWT library, OAuth2 provider, rate limiting middleware
 
@@ -444,6 +444,54 @@ function verifyWebhookSignature(req, secret) {
 
 ---
 
+## Testing Authorization: Prove the Test Bites
+
+### The gate lives in the handler, not in the page around it
+
+A layout, a route group, or a proxy that checks the role protects the PAGE. It
+does not protect a server action or a route handler rendered inside that page:
+those are separate endpoints, callable directly. Moving a control from a
+tightly gated area into a widely gated one (say, from an owner-only console into
+an admin area that also admits lesser admin roles) silently widens who can call
+its action unless the action checks the role itself. Every privileged action
+verifies the caller on every call, first, before it reads or writes anything.
+
+### Test the real predicate, over a fake data layer
+
+Mocking `isAdmin()` to return `false` and asserting a refusal tests the mock.
+Instead, mock one layer down (the database client) with a small in-memory fake
+that returns the caller's role row, and let the real role predicates run. A
+refusal in that test is the production decision.
+
+- Cover every tier, not just "admin" and "user": the top role allowed; each
+  lesser admin role, and a plain member, refused.
+- Assert the refusal happened **before side effects**: the fetch, the write,
+  and the audit call were never invoked.
+- Make the fake **throw on any table it was not told about**. That turns "the
+  handler never looks up X" from a hope into an assertion, which is how you
+  prove a handler targets the caller's own tenant rather than looking one up.
+
+### Mutate the gate once, and watch a test fail
+
+A permission test that cannot fail is decoration. After writing it, change the
+gate to the next-wider predicate (super admin to any admin, say), run the
+tests, and confirm the case for the newly admitted role fails. Then restore the
+gate and confirm green. It takes a minute and it is the only evidence that the
+test guards the line it claims to guard. Do the restore from a saved copy, not
+from memory, and check the diff afterward.
+
+### Open endpoints: the limits are the whole defense
+
+An endpoint with no session and no role has only its limits: per-caller rate,
+a global daily cap, message and history size, and an output cap on any model
+call. Drive the real route and the real limiter in a test as an anonymous
+caller: accepted within limits, refused past each one, with the expensive call
+never made on a refusal. Say plainly in the limiter's comment when counters are
+in memory per server instance: concurrent instances each count separately and a
+cold start resets them, so the bound is a small multiple, not a hard ceiling.
+
+---
+
 ## Quick Checklist
 
 - [ ] JWTs validated: signature, exp, nbf, iss, aud, algorithm whitelist
@@ -452,6 +500,8 @@ function verifyWebhookSignature(req, secret) {
 - [ ] OAuth2 using Authorization Code + PKCE; no implicit or password grants
 - [ ] CORS: specific origin allowlist, no wildcard with credentials
 - [ ] Rate limiting at global, service, and endpoint tiers
+- [ ] Every privileged action checks the role itself; the surrounding page's gate does not count
+- [ ] Authorization tests run the real predicate, cover every tier, and were seen to fail under a mutated gate
 - [ ] Request size limits and timeouts configured
 - [ ] Deprecated API versions still patched or blocked
 - [ ] Webhook signatures verified with HMAC + timestamp + constant-time compare

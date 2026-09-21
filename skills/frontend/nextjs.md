@@ -1,8 +1,8 @@
 # Next.js Patterns & Conventions
 
 ---
-version: 1.0.0
-last_updated: 2026-03-06
+version: 1.1.0
+last_updated: 2026-09-21
 applicability: Next.js 14+, App Router
 dependencies: React 18+, Node.js 18+
 ---
@@ -361,6 +361,13 @@ const { DATABASE_URL } = process.env;
 const dbUrl = process.env.DATABASE_URL;
 ```
 
+The same rule reaches config helpers. A `NEXT_PUBLIC_` value is inlined into the
+browser bundle only where the literal expression `process.env.NEXT_PUBLIC_X`
+appears in source. Passing that expression as an argument is fine
+(`resolve(process.env.NEXT_PUBLIC_X)`); looking it up by a computed key is not
+(`process.env[name]` is `undefined` in the browser). Because the value is baked in
+at build time, changing it on the host does nothing until the next build.
+
 ## Route Segment Config
 
 Export these from `page.tsx`, `layout.tsx`, or `route.ts`:
@@ -416,6 +423,26 @@ function ClientOnlyValue() {
 - **`redirect()` in try/catch**: `redirect()` throws internally. Do not wrap in try/catch; call it outside.
 - **Parallel data fetching**: Use `Promise.all()` to avoid serial waterfalls when fetching independent data.
 - **`cookies()` and `headers()` in layouts**: Calling these opts the entire layout into dynamic rendering. Be intentional.
+
+### Stale Generated Types After Deleting a Route
+
+Next.js writes route type validators under `.next/types/` (from `next build` or
+`next typegen`) and `.next/dev/types/` (from `next dev` only). They import every
+page, layout, and route handler by path. Delete a route and those generated files
+still import it, so `tsc --noEmit` fails with `TS2307: Cannot find module
+'../../app/.../page.js'`, pointing into `.next/`, not into your source.
+
+That is not a source error. Before judging a type failure, read the path:
+
+- An error inside `.next/` means the generated types are stale. Run
+  `next build` (or `next typegen`) and type-check again.
+- `.next/dev/types/` is only rewritten by a running dev server. If none is
+  running, delete that one stale directory; the next `next dev` recreates it.
+- An error in your own files is real. A rebuild will not make it go away, so
+  never reach for "it is probably stale" without reading the path first.
+
+In CI this never appears (a clean checkout has no `.next/`); it is a local-only
+trap that shows up exactly when you are deleting things.
 
 ## Caching Summary
 

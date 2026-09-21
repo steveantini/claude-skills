@@ -2,8 +2,8 @@
 
 | Field          | Value                                                   |
 |----------------|---------------------------------------------------------|
-| Version        | 1.0                                                     |
-| Last Updated   | 2026-03-06                                              |
+| Version        | 1.1                                                     |
+| Last Updated   | 2026-09-21                                              |
 | Applicability  | Supabase (hosted or self-hosted), PostgreSQL 15+        |
 | Dependencies   | supabase-js v2+, Supabase CLI, @supabase/ssr (for SSR frameworks) |
 
@@ -444,6 +444,58 @@ supabase db push
 
 ---
 
+### Applying a Migration by Hand (SQL Editor Paste)
+
+Sometimes `supabase db push` is not the path: no CLI credentials on the machine,
+a locked-down environment, or an operator who prefers to read every statement
+before it runs. Pasting into the SQL Editor works, but two things `db push` does
+for you are now your job.
+
+**1. Record the ledger row, in the same transaction as the body.** `db push`
+writes a row into `supabase_migrations.schema_migrations`. A pasted migration
+writes nothing, so the change is applied but unrecorded, and the next
+`supabase migration list` shows it as pending (and the next `db push` tries to
+run it again). The ledger's columns are `version` (primary key), `name`, and
+`statements`; `statements` stays null for a pasted migration.
+
+```sql
+begin;
+
+-- <the migration body, exactly as in the file>
+
+insert into supabase_migrations.schema_migrations (version, name)
+values ('20260101120000', 'add_widgets_table')   -- the file name, split at the first underscore
+on conflict (version) do nothing;
+
+commit;
+```
+
+**2. Supply the transaction yourself.** The SQL Editor does not wrap a paste in
+a transaction. Without `begin` / `commit`, a failure halfway leaves the first
+half applied.
+
+Habits that make a hand-applied migration safe:
+
+- **Make a data migration one statement.** A single `do $$ ... $$` block is
+  atomic by itself: any exception undoes everything the block did, whether or
+  not a caller wrapped it. Do not rely on the caller.
+- **Guard, then act.** Before a destructive step, check the precondition and
+  `raise exception` naming the offending row, so a violated assumption stops
+  the whole migration instead of half-applying it.
+- **Write it to run twice.** `on conflict do nothing` on inserts; updates that
+  only touch rows that differ (`where col is distinct from <value>`), so a
+  second run changes nothing, not even `updated_at`.
+- **Loop over tenants, never assume one.** A body that iterates organizations
+  is a no-op on an empty database, which keeps a from-zero replay clean.
+- **Ship the verification with it.** End the file with the read-only `select`s
+  to run before and after, as comments, and hand the operator the same queries.
+- **Rehearse with `rollback`.** With no local or branch database, the rehearsal
+  is the same block with `rollback;` in place of `commit;`, reading the
+  verification queries just before the rollback.
+- **Never probe with a write.** If the agent's database access is meant to be
+  read-only, confirm that by reading its configuration, not by attempting a
+  write to see whether it fails.
+
 ## Local Development with Supabase CLI
 
 ```bash
@@ -578,6 +630,27 @@ Checklist:
 ### 8. `ON DELETE CASCADE` with auth.users
 
 If you `DELETE` a user via the auth admin API, any rows with `REFERENCES auth.users(id) ON DELETE CASCADE` will be deleted. Make sure this is the behavior you want, or use `ON DELETE SET NULL`.
+
+---
+
+### 9. Triggers That Read `auth.uid()` See NULL in the SQL Editor
+
+A trigger that enforces "only an administrator may change this" usually resolves
+the acting user from `auth.uid()`. In the SQL Editor, in a seed script, and in a
+migration there is no JWT, so `auth.uid()` is null and the trigger treats the
+caller as nobody. Consequences worth knowing before they surprise you:
+
+- A seed that **updates** a guarded column (promoting the first user, say) is
+  refused by the trigger, even though it runs as the database owner.
+- The same seed **inserting** the row is fine when the trigger is
+  `before update` only: inserts never reach it.
+- An `on conflict ... do update set role = 'x'` fires the update trigger. It
+  passes only when the value is unchanged, so such a seed is re-runnable only
+  while the stored value already matches.
+
+So: seed privileged rows by insert, state the re-run limit in the seed's header,
+and route later changes through the application, where a real actor exists. Do
+not "fix" it by disabling the trigger in a seed; that is the guard you wanted.
 
 ---
 

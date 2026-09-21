@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0 |
-| **Last Updated** | 2026-03-06 |
+| **Version** | 1.1.0 |
+| **Last Updated** | 2026-09-21 |
 | **Applicability** | GitHub-hosted repositories, GitHub Actions, Node.js/TypeScript projects |
 | **Dependencies** | GitHub Actions, Node.js 18+, package manager (npm/pnpm/yarn) |
 
@@ -310,6 +310,56 @@ updates:
 3. Remove from git history: `git filter-repo` (rewrite history, force push).
 4. Update all environments with new credentials.
 5. Audit access logs for unauthorized use.
+
+---
+
+## Content Denylist Guard (Names and Identifiers)
+
+Secrets scanners find credentials. They do not find a person's name, a customer's
+name, a handle inside a URL, or a private email in a fixture, and some
+repositories must never contain those. A denylist check, run as an ordinary
+test, makes that rule enforceable instead of aspirational.
+
+### Shape
+
+- **The list is held by the owner, outside version control.** A gitignored file
+  at the repository root, one entry per line. The list is itself sensitive (it
+  is exactly the strings you are protecting), so it is never committed and an
+  agent working in the repository never reads it.
+- **Scan what git tracks** (`git ls-files`), case-insensitively, whole-word,
+  skipping binaries. Staged-but-uncommitted files count; untracked files do not.
+- **Output is `path:line` and nothing else.** Never print the matched text or
+  the entry: the checker's own output must not leak what the list protects.
+  Reports, commit messages, and decision logs follow the same rule and cite
+  locations only.
+- **The same logic runs as a script and as a test**, so the normal test run is
+  the gate and there is no separate step to forget.
+
+### Two honesty rules
+
+- **An absent list is "not enforced", printed, never a silent pass.** On a
+  machine without the list the test SKIPS with a printed line. A green check
+  that checked nothing is worse than no check.
+- **Exemptions are explicit, reasoned, and printed on every run.** Some paths
+  cannot be edited (frozen history, an already-applied migration). List each
+  with its reason in the checker, do not scan them, and print the list on every
+  run, including when the denylist is absent. An exemption nobody can see is a
+  hole. Adding one should take a recorded decision.
+
+### Testing the guard without a real name
+
+Build a throwaway git repository in a temp directory, with a denylist holding a
+nonsense token: a hit in a normal path fails; the same token in an exempt path
+does not; the exempt list is printed both with and without a list present; and
+the printed output never contains the token.
+
+### Seeding the list
+
+Git metadata is a reasonable first source (author name, the email's local part
+and any non-generic domain word, the remote's account handle), but it often
+collapses to a single handle. It will not contain a full name that only appears
+in prose, so the owner adds those by hand. Until they do, the gate misses most
+of what a scrub was for.
 
 ---
 

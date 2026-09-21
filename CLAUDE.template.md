@@ -40,6 +40,17 @@
 
 Everything built in this repo is built to the most professional, cutting-edge, architecturally sound, and scalable standard, and is delightful for both the user and the maintainer. The visible design may start simple; the foundation never does. Every choice should be one we would still be proud of when this project is the public face of the business. No shortcuts that would need to be undone later. When there is a cheap way and a right way, take the right way and document why.
 
+### Before removing something that works
+
+<!--
+  RECOMMENDED. Removal is the one kind of change where a misreading is expensive:
+  the code is gone, the behavior is gone, and restoring it costs a second change.
+-->
+
+When an instruction would remove or relocate a working surface, and its wording supports more than one reading, name the readings before acting. "Visible on X only" can mean WHO may use it or WHERE it appears; "delete the Y section" can mean the component or the feature behind it. State both, say which one you would take and what each would cost, and ask. Do not resolve the ambiguity silently toward the reading that deletes more.
+
+The same care applies to the premise of a removal. If the thing turns out to be different from how the instruction describes it (it never read from the source named, it has other importers, it is bigger than stated), say so before or alongside the change, and record it in the decision log. A removal scoped with a stop rule ("stop if more than N files, or any importer other than Z") is the best protection; honor it literally.
+
 ---
 
 ## Architecture

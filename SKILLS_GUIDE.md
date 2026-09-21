@@ -77,9 +77,9 @@ AI Integration (4)
 - **prompt-engineering.md** - Prompt patterns: system-prompt architecture, structured output, injection defense, evaluation.
 
 Backend (3)
-- **database-patterns.md** - Postgres schema and query reference: indexing, migrations, JSONB, batched rollups (avoiding N+1), audit trails.
+- **database-patterns.md** - Postgres schema and query reference: indexing, migrations, JSONB, batched rollups (avoiding N+1), audit trails, retiring rows (soft-delete filters that leak, guarded hard deletes).
 - **python-api.md** - FastAPI reference: project structure, settings, dependency injection, async, error handling, testing.
-- **supabase.md** - Supabase patterns: RLS, auth across client/SSR/JWT, realtime, edge functions, storage, CLI workflows, gotchas.
+- **supabase.md** - Supabase patterns: RLS, auth across client/SSR/JWT, realtime, edge functions, storage, CLI workflows, applying a migration by SQL Editor paste with its ledger row, gotchas (including triggers that see no `auth.uid()` in seeds).
 
 Content (1)
 - **document-conversion.md** - pandoc `.docx` conversion: the missing-Normal-style heading loss and its scratch-copy fix, running `--extract-media=.` from the target folder.
@@ -90,12 +90,12 @@ Design (3)
 - **ux-writing.md** - Microcopy: error states, empty states, honest product voice.
 
 DevOps (3)
-- **ci-cd.md** - CI/CD pipelines: PR checks, deploy gates, GitHub Actions.
+- **ci-cd.md** - CI/CD pipelines: PR checks, deploy gates, GitHub Actions, and a content denylist guard for names and identifiers.
 - **environment-management.md** - Env vars and secrets across dev/preview/prod, with fail-closed defaults.
 - **vercel-deployment.md** - Vercel build config, preview deploys, env vars, domains.
 
 Frontend (4)
-- **nextjs.md** - Next.js App Router: server and client components, server actions, routing, rendering strategies.
+- **nextjs.md** - Next.js App Router: server and client components, server actions, routing, rendering strategies, stale generated route types after deleting a route.
 - **react-patterns.md** - React component architecture: hooks, effect cleanup, state, composition.
 - **tailwind.md** - Tailwind conventions: design tokens, utility patterns, theming.
 - **web-accessibility.md** - WCAG 2.1 AA: forms, keyboard navigation, modals, semantic structure.
@@ -107,20 +107,19 @@ Product Ops (4)
 - **observability.md** - Logging, tracing, monitoring, and audit surfaces designed for redaction from day one.
 
 Security (5)
-- **api-security.md** - Endpoint security: authorization per route, input validation, rate limits, CORS.
+- **api-security.md** - Endpoint security: authorization per route, input validation, rate limits, CORS, and testing authorization so the test is proven to bite.
 - **backend-security.md** - Server-side security: secret handling, service-role usage, no-PII logging.
 - **database-security.md** - RLS design and testing, least-privilege roles, migration safety.
 - **frontend-security.md** - CSP, XSS prevention, cookie handling, client-storage hygiene.
 - **infra-security.md** - Deploy and infrastructure hardening: security headers, container config, least privilege.
 
-### In the library but not yet used in a project (8)
+### In the library but not yet used in a project (2)
 
 These exist here but have not been copied into any project's `.claude/skills/`
-yet. They are ready when a fitting project comes along: **mcp-development.md**,
-**model-abstraction.md**, **python-api.md**, **ci-cd.md**, **analytics.md**,
-**cost-tracking.md**, **eval-framework.md**, **observability.md**. (legalOS, a
-Next.js and Supabase app, simply had no use for the Python API doc, the
-MCP-server-building doc, and so on, so they stayed in the library.)
+yet. They are ready when a fitting project comes along: **mcp-development.md**
+and **python-api.md**. (The other six that used to sit here, **model-abstraction.md**,
+**ci-cd.md**, **analytics.md**, **cost-tracking.md**, **eval-framework.md**, and
+**observability.md**, are now wired into a project.)
 
 ---
 
