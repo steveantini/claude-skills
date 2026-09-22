@@ -2,8 +2,8 @@
 
 | Field          | Value                                                   |
 |----------------|---------------------------------------------------------|
-| Version        | 1.1                                                     |
-| Last Updated   | 2026-09-21                                              |
+| Version        | 1.2                                                     |
+| Last Updated   | 2026-09-22                                              |
 | Applicability  | Supabase (hosted or self-hosted), PostgreSQL 15+        |
 | Dependencies   | supabase-js v2+, Supabase CLI, @supabase/ssr (for SSR frameworks) |
 
@@ -495,6 +495,44 @@ Habits that make a hand-applied migration safe:
 - **Never probe with a write.** If the agent's database access is meant to be
   read-only, confirm that by reading its configuration, not by attempting a
   write to see whether it fails.
+- **Never edit a merged migration.** A file that has been applied is the
+  record of what ran. A correction is a new migration; a stale comment in an
+  old one stays stale.
+
+**A data-row change is a migration too.** Renaming a row that carries a
+display value (a tenant's name, a seeded label) is data, not schema, but it
+goes through the same file, paste, and ledger row, and it is written to be
+a no-op that says so once applied:
+
+```sql
+do $$
+declare v_matches integer;
+begin
+  select count(*) into v_matches from public.organizations
+   where slug = 'acme' and name = 'Old Name';
+  if v_matches > 1 then
+    raise exception 'expected at most one row to rename, found %', v_matches;
+  end if;
+  if v_matches = 0 then
+    raise notice 'nothing to do: already renamed or absent';
+    return;
+  end if;
+  update public.organizations set name = 'New Name'
+   where slug = 'acme' and name = 'Old Name';
+end $$;
+```
+
+The slug is the identifier and never changes; the name is the label. The
+seed that creates the row is updated in the same commit, so a fresh database
+matches, and the paste-ready block for the operator carries `begin;`, this
+body, the ledger insert with `on conflict (version) do nothing`, and
+`commit;`, with the read-only `select`s to run before and after.
+
+**How to test for it.** A test reads the migration's statements (comments
+stripped) and asserts the new value, the identifier it targets, the old value
+in its guard, and that nothing else is named; a second test asserts the seed
+inserts the new value under the unchanged identifier; a scan asserts the old
+value survives in no file that runs.
 
 ## Local Development with Supabase CLI
 

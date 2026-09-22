@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0 |
-| **Last Updated** | 2026-03-06 |
+| **Version** | 1.1.0 |
+| **Last Updated** | 2026-09-22 |
 | **Applicability** | React/Next.js applications, component-based UI development |
 | **Dependencies** | Tailwind CSS (or CSS-in-JS), Radix UI / shadcn/ui (recommended), Lucide icons |
 
@@ -395,3 +395,92 @@ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
 - [ ] Responsive behavior defined
 - [ ] Motion respects `prefers-reduced-motion`
 - [ ] Documented with example usage
+
+## One Source for a Rendered Label
+
+**The rule.** A user-visible label that appears in more than one place (a
+navigation rail, a breadcrumb, a page title and browser tab, marketing
+mock-ups of the product) lives in one exported constant, and every surface
+reads it. Identifiers keep their original word when the label changes:
+routes, storage and preference keys, query parameters, group keys, table and
+column names, and code names are never renamed for a label.
+
+**Why.** A label typed in six files drifts in six directions, and the
+marketing mock-up is the first to show a word the product no longer uses.
+Identifiers are contracts with stored data, bookmarks, and other code; a
+rename there is a migration with no user benefit, so the label and the
+identifier are allowed to disagree on purpose, and the constant's comment
+says so.
+
+**Example.**
+
+```ts
+// lib/labels.ts
+/** The label users see for the group. The identifier keeps the old word by
+ *  rule: the route, the table, and the stored keys still say "sections". */
+export const SECTIONS_LABEL = "Topics";
+```
+
+```tsx
+<RailGroup caption={SECTIONS_LABEL} captionHref="/workspace/sections" groupKey="sections" />
+// breadcrumb segments: [HOME, SECTIONS_LABEL, item.name]
+// page: export const metadata = { title: SECTIONS_LABEL };
+// the marketing mock's rail caption: <NavCaption>{SECTIONS_LABEL}</NavCaption>
+```
+
+**How to test for it.** One test renders each surface and asserts it reads
+the constant, and a source scan asserts the old label appears nowhere as a
+standalone string:
+
+```ts
+expect(renderToStaticMarkup(<Breadcrumb .../>)).toContain(`>${SECTIONS_LABEL}<`);
+expect(readFileSync("app/workspace/sections/page.tsx", "utf8")).toContain("title: SECTIONS_LABEL");
+// no file in app/ or components/ carries the retired label as a label
+expect(offenders(/"Sections"|>\s*Sections\s*</)).toEqual([]);
+// the identifiers are untouched
+expect(railSource).toContain('groupKey="sections"');
+```
+
+## The Product Name: One Value, One Component, Scanned Casing
+
+**The rule.** The product name is one config value, rendered through one
+component that pins `text-transform: none` inline, and read as a string
+through one exported constant everywhere a string is needed (titles, prompts,
+export footers). It is never typed as a literal, and it never sits inside an
+element that uppercases its text.
+
+**Why.** A name with internal casing (a lowercase first letter, a capital
+inside) is flattened by any uppercased container, title-cased by any
+humanizing helper, and mistyped by hand. A scan for the wrong spellings is
+cheap; a review is not, and it misses the case where the uppercasing comes
+from a helper that composes class names, which a scan for a literal
+`className="... uppercase ..."` never sees.
+
+**Example.**
+
+```tsx
+export function Wordmark({ className }: { className?: string }) {
+  return <span className={className} style={{ textTransform: "none" }}>{siteConfig.name}</span>;
+}
+export const PRODUCT_NAME = siteConfig.name;
+
+// In an uppercased eyebrow: the mark, never the string.
+<p className="font-mono uppercase">Powered by <Wordmark /></p>
+```
+
+**How to test for it.**
+
+```ts
+// The wrong spellings, in every rendered surface and every source file.
+for (const wrong of ["Nameos", "NAMEOS", "NameOS"]) expect(text).not.toContain(wrong);
+// No code re-cases the name.
+expect(source).not.toMatch(/PRODUCT_NAME\s*\.\s*(toUpperCase|toLowerCase|charAt|replace)\b/);
+// The bare string never sits inside an uppercasing element, including one whose
+// classes come through a helper (cn, clsx, cva): scan the helper's arguments too.
+const uppercasing = /<(\w+)[^>]*(?:className="[^"]*\buppercase\b[^"]*"|className=\{cn\([^)]*\buppercase\b[^)]*\))[^>]*>([\s\S]*?)<\/\1>/g;
+for (const m of source.matchAll(uppercasing)) expect(m[2]).not.toMatch(/\{PRODUCT_NAME\}/);
+```
+
+Name the components that uppercase through a helper (a mono-caps label
+component, for instance) in the test's comment, so the next writer knows the
+literal scan is not enough.

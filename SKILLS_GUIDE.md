@@ -74,20 +74,20 @@ AI Integration (4)
 - **anthropic-api.md** - Claude API: model choice, tool use, streaming, prompt caching, token and cost math.
 - **mcp-development.md** - Building MCP servers (FastMCP and the TypeScript SDK): tools, resources, testing, deployment.
 - **model-abstraction.md** - Provider-agnostic LLM layer: unified interface, a DB-backed model registry with code fallback, cost normalization.
-- **prompt-engineering.md** - Prompt patterns: system-prompt architecture, structured output, injection defense, evaluation.
+- **prompt-engineering.md** - Prompt patterns: system-prompt architecture, structured output, injection defense, evaluation, audience framing stated once in the shared preamble and pinned by test.
 
 Backend (3)
 - **database-patterns.md** - Postgres schema and query reference: indexing, migrations, JSONB, batched rollups (avoiding N+1), audit trails, retiring rows (soft-delete filters that leak, guarded hard deletes).
 - **python-api.md** - FastAPI reference: project structure, settings, dependency injection, async, error handling, testing.
-- **supabase.md** - Supabase patterns: RLS, auth across client/SSR/JWT, realtime, edge functions, storage, CLI workflows, applying a migration by SQL Editor paste with its ledger row, gotchas (including triggers that see no `auth.uid()` in seeds).
+- **supabase.md** - Supabase patterns: RLS, auth across client/SSR/JWT, realtime, edge functions, storage, CLI workflows, applying a migration by SQL Editor paste with its ledger row (data-row changes included, as guarded no-ops), gotchas (including triggers that see no `auth.uid()` in seeds).
 
 Content (1)
 - **document-conversion.md** - pandoc `.docx` conversion: the missing-Normal-style heading loss and its scratch-copy fix, running `--extract-media=.` from the target folder.
 
 Design (3)
 - **responsive-design.md** - Responsive layout: breakpoints, fluid type, mobile-first, container queries.
-- **ui-patterns.md** - Reusable UI component and interaction patterns.
-- **ux-writing.md** - Microcopy: error states, empty states, honest product voice.
+- **ui-patterns.md** - Reusable UI component and interaction patterns; one source for a rendered label (identifiers never renamed); the product name as one value and one component with a casing scan.
+- **ux-writing.md** - Microcopy: error states, empty states, honest product voice; vendor-neutral help text; read-only recon before any copy rewrite.
 
 DevOps (3)
 - **ci-cd.md** - CI/CD pipelines: PR checks, deploy gates, GitHub Actions, and a content denylist guard for names and identifiers.
@@ -96,7 +96,7 @@ DevOps (3)
 
 Frontend (4)
 - **nextjs.md** - Next.js App Router: server and client components, server actions, routing, rendering strategies, stale generated route types after deleting a route.
-- **react-patterns.md** - React component architecture: hooks, effect cleanup, state, composition.
+- **react-patterns.md** - React component architecture: hooks, effect cleanup, state, composition; the JSX space dropped after an interpolated value beside an entity.
 - **tailwind.md** - Tailwind conventions: design tokens, utility patterns, theming.
 - **web-accessibility.md** - WCAG 2.1 AA: forms, keyboard navigation, modals, semantic structure.
 

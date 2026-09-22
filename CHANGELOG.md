@@ -7,6 +7,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- react-patterns.md 1.1.0: an interpolated value that shares a JSX text run with an HTML entity loses the space after it in the production build; write `{value}{" "}word`, and scan for the pattern.
+- ui-patterns.md 1.1.0: one exported constant for a label that renders in several places, with identifiers (routes, keys, params, tables) never renamed; the product name as one config value rendered through one casing-pinned component, with a scan for wrong casings and for the bare name inside any uppercasing element, including uppercasing applied through a class helper.
+- supabase.md 1.2: a data-row change is a migration too, written as a guarded no-op that says so when already applied, with its seed updated in the same commit; never edit a merged migration.
+- ux-writing.md 1.1.0: vendor-neutral help text when connectors are stand-ins (fence any unavoidable vendor-named label in a test); read-only recon that prints every rendered string verbatim before a copy rewrite.
+- prompt-engineering.md 1.2.0: audience framing stated once in the shared preamble, never in task prompts, pinned by test.
+
+### Changed
+- SKILLS_GUIDE.md section 3: descriptions follow the additions.
+
+### Added
 - supabase.md 1.1: applying a migration by SQL Editor paste (the ledger row and the body in one transaction; one atomic DO block; guards that raise; safe to run twice; rehearsing with rollback; never probing read-only access with a write). New gotcha: triggers that read `auth.uid()` see null in the SQL Editor, so a seed can insert a guarded row but cannot update one.
 - database-patterns.md 1.2: retiring rows. Soft delete is a per-query filter that leaks into secondary reads (pickers, imports, rollups); one marker only; unique keys still count retired rows; rows with no history are hard deleted behind a guard that raises.
 - nextjs.md 1.1.0: stale generated route types after deleting a route (read the error path before judging; rebuild or typegen; the dev types directory is only rewritten by a running dev server). `NEXT_PUBLIC_` values need the literal expression and a rebuild.

@@ -1,8 +1,8 @@
 # React Patterns & Component Architecture
 
 ---
-version: 1.0.0
-last_updated: 2026-03-06
+version: 1.1.0
+last_updated: 2026-09-22
 applicability: React 18+, React 19, RSC-compatible
 dependencies: React 18+, TypeScript 5+
 ---
@@ -599,3 +599,47 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
 });
 Input.displayName = "Input";
 ```
+
+## JSX Whitespace: An Interpolated Value Beside an Entity
+
+**The rule.** When an interpolated value shares a JSX text run with an HTML
+entity, write the space after the value explicitly: `{value}{" "}word`. Never
+rely on a literal space there.
+
+**Why.** JSX trims and collapses whitespace in text runs. In a production
+build, a text run that contains an entity (`&rsquo;`, `&ldquo;`, `&amp;`) is
+compiled differently from a plain one, and the leading space of the run that
+follows an expression is dropped. The development server and a static render
+in tests both keep the space, so the bug shows only in the built page: the
+product name or a label runs into the next word ("nameword"). It appeared in
+three places in one project, one of which had shipped that way for weeks.
+
+**Example.**
+
+```tsx
+// Renders "Ask about NAMEand I’ll help" in the production build.
+<p>Ask about {PRODUCT_NAME} and I&rsquo;ll help.</p>
+
+// Renders correctly everywhere.
+<p>Ask about {PRODUCT_NAME}{" "}and I&rsquo;ll help.</p>
+```
+
+The same idiom covers a value that ends a source line (the newline-and-indent
+that follows is dropped entirely), so `{value}{" "}` at a line end, and
+`{" "}{value}` at a line start, are the safe forms.
+
+**How to test for it.** A source scan catches the pattern before it ships:
+
+```ts
+// A value followed by a plain space and a text run that holds an entity.
+const risky = /\{(?:PRODUCT_NAME|LABEL)\}( [^<{]*)/g;
+for (const file of tsxFiles) {
+  for (const match of file.source.matchAll(risky)) {
+    expect(match[1], `${file.path}: use {" "} after the value`).not.toContain("&");
+  }
+}
+```
+
+Pair it with a check on the built HTML when a page prerenders: grep the output
+for the value immediately followed by a letter. A static-render test alone
+does not reproduce the drop.

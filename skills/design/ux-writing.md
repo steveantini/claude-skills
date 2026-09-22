@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0 |
-| **Last Updated** | 2026-03-06 |
+| **Version** | 1.1.0 |
+| **Last Updated** | 2026-09-22 |
 | **Applicability** | All user-facing interface text in web and mobile applications |
 | **Dependencies** | None (language-agnostic patterns) |
 
@@ -355,3 +355,70 @@ Step 3: "Invite your team"
 | Confirmation | "[Verb] [specific thing]? [Consequence]. [Confirm verb] / Cancel" |
 | Tooltip | "[What it does]" or "[What it means]" (1 sentence max) |
 | Onboarding | "[Benefit]. [What to do]." |
+
+## Vendor-Neutral Help Text
+
+**The rule.** When a product's connectors are stand-ins for a future provider
+(a drive, a calendar, a mail system that will be swapped), write the guides,
+the help drawer, and the model-facing prompts without any vendor's name:
+"your drive", "your calendar", "a connected system", "Select Connect". The
+switch then changes buttons and code, not words.
+
+**Why.** Help text names the vendor in dozens of sentences, and every one is
+a rewrite the day the connector changes. The product's own buttons are
+generated from the connector and follow the switch on their own; prose does
+not. A guide that says "your drive" is true before and after.
+
+**Example.**
+
+```
+Before: Choose Upload from computer, or Google Drive when your organization has it connected.
+After:  Choose Upload from computer, or your connected drive when your organization has one connected.
+
+Before: a label like Google Meet when the event has a video link
+After:  a video-call label when the event has a video link
+```
+
+When a step must quote a rendered label that names a vendor, either describe
+the control generically ("Select Connect") or, if the exact label is needed,
+fence it: a test lists each such phrase and fails the moment the phrase is
+gone from the source, so the connector switch forces the guide update rather
+than leaving a stale label behind.
+
+**How to test for it.**
+
+```ts
+const vendors = /VendorA|VendorB|VendorC/;
+expect(guidesSource).not.toMatch(vendors);
+expect(renderedCorpus).not.toMatch(vendors);
+// Or, while a fenced label remains:
+for (const phrase of FENCED_LABELS) { expect(source).toContain(phrase); source = source.split(phrase).join(""); }
+expect(source).not.toMatch(vendors);
+```
+
+## Recon Before a Copy Rewrite
+
+**The rule.** Before proposing new wording for a page, a set of guides, or a
+document set, run a read-only pass that prints every rendered string verbatim
+with its file and line, in render order, and lists the tests that pin any of
+them. Propose wording only from that output.
+
+**Why.** Wording proposed from fragments (a grep hit, a memory of the page, a
+summary) is wrong in ways that cost a commit each: a sentence that continues
+across a JSX line break, a lead-in that is a separate bold element, a string
+that is shared with another page, a test that pins the old text. The recon
+also surfaces what a rewrite must keep current: a claims map, a seed, a
+mock-up that shows the same words.
+
+**How to run it.** One numbered read-only task per surface: the route file
+and every component it renders; each section's strings in order; which
+strings are shared with other pages; which mock-ups carry hard-coded labels
+and which come from a shared source; which tests pin which substrings; which
+claims the product no longer supports. Print prose in code fences so nothing
+is reflowed, and never elide with "...". The rewrite that follows is then a
+list of exact old-to-new edits, each with a line number, and every edit lands
+with its test in one commit.
+
+**How to test for it.** The rewrite commit adds pins for the new sentences
+against the rendered markup (not the source), so the next rewrite starts from
+a recon that lists them.
